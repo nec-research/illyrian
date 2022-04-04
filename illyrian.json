@@ -1,19 +1,20 @@
 {
-	"name":			"illyrian",
-	"version":		"0.1",
-	"platform":		"linux_x86_x64",
-	"summary":		"Illyrian is a small helper for quickly building mainly binary Python Wheels without using setuptools or similar.",
-	"readme":		"README.md",
-	"homepage":		"TODO",
-	"author":		"Nicolas Weber",
-	"author-email":	"nicolas.weber@neclab.eu",
-	"license":		"3 BSD-License",
-	"python":		">=3.7",
-
+	"name":				"illyrian",
+	"version":			"@Illyrian_VERSION@",
+	"platform":			"linux_x86_x64",
+	"summary":			"Illyrian is CMake extension for easily creating Python packages.",
+	"readme":			"illyrian/README.md",
+	"author":			"Nicolas Weber <nicolas.weber@neclab.eu>",
+	"license":			"3 BSD-License",
+	"requires-python":	">=3.7",
 	"packages": [
 		"illyrian"
 	],
 	"payload": [
-		"illyrian/LICENSE"
+		"illyrian/LICENSE",
+		"illyrian/cmake/*.cmake"
+	],
+	"scripts": [
+		"scripts/illyrian"
 	]
 }
