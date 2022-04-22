@@ -260,10 +260,16 @@ FUNCTION(ADD_PYTHON_WHEEL TARGET_NAME JSON)
 		MESSAGE(FATAL_ERROR "Missing version in ${JSON}.")
 	ENDIF()
 
-	STRING(REGEX MATCH "\"tag\":[ \t]*\"([a-zA-Z0-9_\\-\\+]+)\"" TAG ${CONFIG})
-	SET(TAG ${CMAKE_MATCH_1})
-	IF(NOT TAG)
-		SET(TAG "none-any")
+	STRING(REGEX MATCH "\"abi-tag\":[ \t]*\"([a-zA-Z0-9_\\+]+)\"" ABI_TAG ${CONFIG})
+	SET(ABI_TAG ${CMAKE_MATCH_1})
+	IF(NOT ABI_TAG)
+		SET(ABI_TAG "none")
+	ENDIF()
+
+	STRING(REGEX MATCH "\"platform-tag\":[ \t]*\"([a-zA-Z0-9_\\+]+)\"" PLATFORM_TAG ${CONFIG})
+	SET(PLATFORM_TAG ${CMAKE_MATCH_1})
+	IF(NOT PLATFORM_TAG)
+		SET(PLATFORM_TAG "any")
 	ENDIF()
 
 	# https://www.python.org/dev/peps/pep-0427/#id13 # re.sub("[^\w\d.]+", "_", distribution, re.UNICODE)
@@ -272,7 +278,7 @@ FUNCTION(ADD_PYTHON_WHEEL TARGET_NAME JSON)
 
 	ADD_CUSTOM_TARGET(${TARGET_NAME} COMMAND ${Python3_EXECUTABLE} -m illyrian ${CONFIGURED_JSON} DEPENDS illyrian_install WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX})
 
-	SET(WHL "${DISTRIBUTION}-${VERSION}-py3-${TAG}.whl")
+	SET(WHL "${DISTRIBUTION}-${VERSION}-py3-${ABI_TAG}-${PLATFORM_TAG}.whl")
 	ADD_CUSTOM_TARGET(${TARGET_NAME}-install
 				${Python3_EXECUTABLE} -m pip uninstall ${NAME} -y
 		COMMAND ${Python3_EXECUTABLE} -m pip install ${WHL}

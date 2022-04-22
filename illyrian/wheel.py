@@ -16,7 +16,7 @@ def wheel(config_file):
 	global config
 
 	# Load Config File ---------------------------------------------------------
-	supported = {'author', 'author-email', 'classifier', 'download-url', 'homepage', 'keywords', 'license', 'maintainer', 'maintainer-email', 'obsoletes-dist', 'platform', 'project-url', 'provides-dist', 'requires-dist', 'requires-external', 'supported-platform', 'requires-python', 'summary', 'readme', 'name', 'version', 'tag', '__include__', 'packages', 'scripts', 'payload'}
+	supported = {'author', 'author-email', 'classifier', 'download-url', 'homepage', 'keywords', 'license', 'maintainer', 'maintainer-email', 'obsoletes-dist', 'platform', 'project-url', 'provides-dist', 'requires-dist', 'requires-external', 'supported-platform', 'requires-python', 'summary', 'readme', 'name', 'version', 'abi-tag', 'platform-tag', '__include__', 'packages', 'scripts', 'payload'}
 
 	def read_json(file):
 		j = None
@@ -80,11 +80,12 @@ def wheel(config_file):
 
 	name			= check('name')
 	version			= check('version')
-	tag				= config.pop('tag', 'none-any')
+	abi_tag			= config.pop('abi-tag', 'none')
+	platform_tag	= config.pop('platform-tag', 'any')
 
 	# https://www.python.org/dev/peps/pep-0427/#id13
 	distribution	= re.sub("[^\w\d.]+", "_", name, re.UNICODE)
-	whl_file		= '{}-{}-py3-{}.whl'.format(distribution, version, tag)
+	whl_file		= '{}-{}-py3-{}-{}.whl'.format(distribution, version, abi_tag, platform_tag)
 
 	#---------------------------------------------------------------------------
 	def generate_meta_data():
@@ -164,7 +165,7 @@ def wheel(config_file):
 		wheel_  = 'Wheel-Version: 1.0\n'
 		wheel_ += 'Generator: illyrian ({})\n'.format(illyrian.__version__)
 		wheel_ += 'Root-Is-Purelib: true\n'
-		wheel_ += 'Tag: {}\n'.format(tag)
+		wheel_ += 'Tag: {}-{}\n'.format(abi_tag, platform_tag)
 		return wheel_
 
 	#---------------------------------------------------------------------------

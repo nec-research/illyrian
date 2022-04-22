@@ -10,6 +10,10 @@ the Python Wheel build process!
 <table>
 <tr><th>Version</th><th>Comment</th></tr>
 
+<tr><td>v0.1.3</td><td>
+Split "tag" into "abi-tag" and "platform-tag" as described in [PEP491](https://peps.python.org/pep-0491/#file-name-convention).
+</td></tr>
+
 <tr><td>v0.1.2</td><td>
 Improved Illyrian command argument parsing.
 </td></tr>
@@ -187,7 +191,8 @@ The Illyrian config file is a plain JSON file that supports the following fields
 | requires-python | ```>= 3.X``` | required |
 | summary | str | required |
 | supported-platform | str/list | |
-| tag | str | default: none-any |
+| abi-tag | str | default: none |
+| platform-tag | str | default: any |
 | version | ```[0-9\.]+``` | required |
 
 Additionally there the ```packages``` key expects a list of paths to python
