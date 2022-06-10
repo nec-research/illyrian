@@ -10,6 +10,13 @@ the Python Wheel build process!
 <table>
 <tr><th>Version</th><th>Comment</th></tr>
 
+<tr><td>v0.1.4</td><td>
+<ul>
+<li>Removed <code>-Wl,--no-as-needed</code> from <code>ILLYRIAN_TARGET_FLAGS</code>.</li>
+<li>Fixed uninitialized var in <code>ILLYRIAN_TARGET_FLAGS</code></li>
+</ul>
+</td></tr>
+
 <tr><td>v0.1.3</td><td>
 Split "tag" into "abi-tag" and "platform-tag" as described in [PEP491](https://peps.python.org/pep-0491/#file-name-convention).
 </td></tr>
@@ -19,7 +26,7 @@ Improved Illyrian command argument parsing.
 </td></tr>
 
 <tr><td>v0.1.1</td><td>
-Added ```EXACT``` to ```ILLYRIAN_FIND_PYTHON```
+Added <code>EXACT</code> to <code>ILLYRIAN_FIND_PYTHON</code>
 </td></tr>
 
 <tr><td>v0.1.0</td><td>
