@@ -1,6 +1,6 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.11)
 
-PROJECT(Illyrian VERSION 0.1.4)
+PROJECT(Illyrian VERSION 0.2.0)
 
 SET(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/dist" CACHE STRING "" FORCE)
 
@@ -18,6 +18,18 @@ INSTALL(FILES
 	${CMAKE_CURRENT_LIST_DIR}/illyrian/wheel.py
 	${CMAKE_CURRENT_BINARY_DIR}/illyrian/version.py
 DESTINATION ${Illyrian_INSTALL_PATH})
+INSTALL(FILES
+	${CMAKE_CURRENT_LIST_DIR}/illyrian/manylinux/__init__.py
+	${CMAKE_CURRENT_LIST_DIR}/illyrian/manylinux/code.py
+DESTINATION ${Illyrian_INSTALL_PATH}/manylinux)
+INSTALL(FILES
+	${CMAKE_CURRENT_LIST_DIR}/illyrian/cpython/__init__.py
+	${CMAKE_CURRENT_LIST_DIR}/illyrian/cpython/code.py
+	${CMAKE_CURRENT_LIST_DIR}/illyrian/cpython/cpython37.py
+	${CMAKE_CURRENT_LIST_DIR}/illyrian/cpython/cpython38.py
+	${CMAKE_CURRENT_LIST_DIR}/illyrian/cpython/cpython39.py
+	${CMAKE_CURRENT_LIST_DIR}/illyrian/cpython/cpython310.py
+DESTINATION ${Illyrian_INSTALL_PATH}/cpython)
 INSTALL(FILES ${CMAKE_CURRENT_LIST_DIR}/illyrian/cmake/illyrian.cmake DESTINATION ${Illyrian_INSTALL_PATH}/cmake)
 INSTALL(FILES ${CMAKE_CURRENT_LIST_DIR}/scripts/illyrian DESTINATION scripts)
 

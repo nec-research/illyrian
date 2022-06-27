@@ -11,18 +11,22 @@ import glob
 import hashlib
 import base64
 import illyrian
+import subprocess
+from illyrian import cpython, manylinux
 
 def wheel(config_file):
 	global config
 
 	# Load Config File ---------------------------------------------------------
-	supported = {'author', 'author-email', 'classifier', 'download-url', 'homepage', 'keywords', 'license', 'maintainer', 'maintainer-email', 'obsoletes-dist', 'platform', 'project-url', 'provides-dist', 'requires-dist', 'requires-external', 'supported-platform', 'requires-python', 'summary', 'readme', 'name', 'version', 'abi-tag', 'platform-tag', '__include__', 'packages', 'scripts', 'payload'}
+	supported = {'author', 'author-email', 'classifier', 'download-url', 'homepage', 'keywords', 'license', 'maintainer', 'maintainer-email',
+		'obsoletes-dist', 'platform', 'project-url', 'provides-dist', 'requires-dist', 'requires-external', 'supported-platform',
+		'requires-python', 'summary', 'readme', 'name', 'version', 'abi-tag', 'platform-tag', '__include__', 'packages', 'scripts',
+		'payload', 'python-tag'}
 
 	def read_json(file):
 		j = None
 		try:
-			with open(file, 'r') as f:
-				j = json.load(f)
+			j = json.load(open(file, 'r'))
 		except Exception as e:
 			raise Exception('Cannot open {}: {}'.format(config_file, e))
 	
@@ -80,12 +84,11 @@ def wheel(config_file):
 
 	name			= check('name')
 	version			= check('version')
-	abi_tag			= config.pop('abi-tag', 'none')
-	platform_tag	= config.pop('platform-tag', 'any')
+	abi_tag			= config.pop('abi-tag', 'auto')
+	platform_tag	= config.pop('platform-tag', 'auto')
 
 	# https://www.python.org/dev/peps/pep-0427/#id13
 	distribution	= re.sub("[^\w\d.]+", "_", name, re.UNICODE)
-	whl_file		= '{}-{}-py3-{}-{}.whl'.format(distribution, version, abi_tag, platform_tag)
 
 	#---------------------------------------------------------------------------
 	def generate_meta_data():
@@ -146,13 +149,13 @@ def wheel(config_file):
 		
 		print('## METADATA')
 		print(meta)
-		print()
 
 		if 'readme' in config:
 			meta += 'Description-Content-Type: text/markdown\n\n'
-			with open(config['readme'], 'r') as f:
-				meta += f.read()
-		
+			meta += open(config['readme'], 'r').read()
+		else:
+			meta += 'Description-Content-Type: text/markdown\n\n'
+
 		return meta
 
 	#---------------------------------------------------------------------------
@@ -166,6 +169,9 @@ def wheel(config_file):
 		wheel_ += 'Generator: illyrian ({})\n'.format(illyrian.__version__)
 		wheel_ += 'Root-Is-Purelib: true\n'
 		wheel_ += 'Tag: {}-{}\n'.format(abi_tag, platform_tag)
+		print("## WHEEL")
+		print(wheel_)
+		print()
 		return wheel_
 
 	#---------------------------------------------------------------------------
@@ -179,12 +185,10 @@ def wheel(config_file):
 		record = ''
 		for files in file_lists:
 			for file in files:
-				if isinstance(file, tuple):
-					file = file[0]
-
-				with open(file, 'rb') as f:
-					content = f.read()
-					record += '{}, {}, {}\n'.format(file, hash(content), len(content))
+				if isinstance(file, tuple):	src, dst = file[:2]
+				else:						src, dst = file, file
+				content = open(src, 'rb').read()
+				record += '{}, {}, {}\n'.format(dst, hash(content), len(content))
 
 		for file, string in string_list:
 			if string is None:
@@ -197,10 +201,36 @@ def wheel(config_file):
 		return record
 
 	#---------------------------------------------------------------------------
-	def is_optional(name):
-		if len(name) > 1 and name[0] == '?':
-			return name[1:], True
-		return name, False
+	def get_condition(name):
+		split = name.strip().split('?')
+		if len(split) == 1:
+			return name, lambda x: x > 0, lambda x: f'{x} > 0'
+		if len(split) > 2:
+			raise Exception(f'Illegal search literal: {name}')
+
+		name, conditions = split
+		if conditions == '':
+			conditions = '>=1' if '*' in name else '==1'
+
+		def parse(condition):
+			cond = re.match(r'\s*([!=><][=]?)\s*([0-9]+)', condition)
+			if cond is None:
+				raise Exception(f'Illegal condition: {condition}')
+			operator, value = cond[1], int(cond[2])
+			if operator == '!=':	return name, lambda x: x != value, lambda x: f'{x} != {value}'
+			if operator == '<':		return name, lambda x: x <  value, lambda x: f'{x} < {value}'
+			if operator == '<=':	return name, lambda x: x <= value, lambda x: f'{x} <= {value}'
+			if operator == '==':	return name, lambda x: x == value, lambda x: f'{x} == {value}'
+			if operator == '>':		return name, lambda x: x >  value, lambda x: f'{x} > {value}'
+			if operator == '>=':	return name, lambda x: x >= value, lambda x: f'{x} >= {value}'
+			raise Exception(f'Illegal condition operator: {condition}')
+
+		output = None
+		for condition in conditions.split('&&'):
+			cond = parse(condition)
+			if output is None:	output = cond
+			else:				output = lambda x: output(x) and cond(x)
+		return output
 
 	#---------------------------------------------------------------------------
 	def find_python():
@@ -210,7 +240,7 @@ def wheel(config_file):
 			assert isinstance(packages, (list, tuple))
 			if len(packages):
 				for package in packages:
-					package, optional = is_optional(package)
+					package, condition, msg = get_condition(package.replace('.', '/'))
 					dir_list = []
 
 					try:
@@ -218,14 +248,15 @@ def wheel(config_file):
 							if os.path.isfile(os.path.join(package, file)) and os.path.splitext(file)[1] == '.py':
 								dir_list.append(os.path.join(package, file))
 					except Exception as e:
-						if not optional:
-							raise Exception('Unable to find package "{}"'.format(package))
+						if not condition(0):
+							raise Exception(f'Unable to find package "{package}"')
 
-					if not optional and len(dir_list) == 0:
-						raise Exception('No Python files found in {}'.format(package))
+					cnt = len(dir_list)
+					if not condition(cnt):
+						raise Exception(f'{msg(cnt)} failed for {package}')
 
 					python_files += dir_list
-			
+
 				python_files.sort()
 				print('## Python Files')
 				print(*python_files, sep='\n')
@@ -246,22 +277,58 @@ def wheel(config_file):
 		return script_files
 
 	#---------------------------------------------------------------------------
-	def find_payload():
-		payload_files = []
+	def check_platform_tag(platform_tag, platform_tag_):
+		if platform_tag == 'auto':			return platform_tag_
+		if platform_tag != platform_tag_:	raise Exception(f'Platform tag {platform_tag} is incompatible to {platform_tag_}')
+		return platform_tag
+
+	#---------------------------------------------------------------------------
+	def run_objdump(files):
+		VERSION				= re.compile(r'[a-z0-9\s]+([A-Z]+)_([0-9\.]+)')
+		PYTHON_SYMBOL		= re.compile(r'.*\s([_]?Py[A-Za-z0-9_]+)')
+		
+		p   				= subprocess.run(['objdump', '-x'] + files, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+		# we can't check the return_code, as it is non-zero if we add any non lib files, which is very likely.
+		objdump				= p.stdout.decode('utf-8').split('\n')
+		symbols, versions	= set(), dict()
+
+		for line in p.stdout.decode('utf-8').split('\n'):
+			m = PYTHON_SYMBOL.match(line)
+			if m: symbols.add(m[1]);							continue
+			m = VERSION.match(line)
+			if m: versions.setdefault(m[1], set()).add(m[2]);	continue
+
+		return symbols, versions
+
+	#---------------------------------------------------------------------------
+	def find_payload(abi_tag, platform_tag):
+		payload_files	= []
 		if 'payload' in config:
 			for payload in config['payload']:
-				payload, optional = is_optional(payload)
-				files = glob.glob(payload, recursive=True)
-				files = list(filter(lambda f: os.path.isfile(f), files))
-				if not optional and len(files) == 0:
-					raise Exception('Unable to find files that match: {}'.format(payload))
+				payload, condition, msg = get_condition(payload)
+				files	= glob.glob(payload, recursive=True)
+				files	= list(filter(lambda f: os.path.isfile(f), files))
+				cnt		= len(files)
+				if not condition(cnt):
+					raise Exception(f'{msg(cnt)} failed for {payload}')
+				
 				payload_files += files
 
 			payload_files.sort()
+
+			if platform_tag == 'auto' or abi_tag == 'auto':
+				symbols, versions = run_objdump(payload_files)
+				if platform_tag == 'auto':	platform_tag	= manylinux.check(versions)
+				if abi_tag      == 'auto':	abi_tag			= cpython  .check(symbols)
+
 			print('## Payload Files')
 			print(*payload_files, sep='\n')
 			print()
-		return payload_files
+
+		if platform_tag	== 'auto':	platform_tag	= 'any'
+		if abi_tag		== 'auto':	abi_tag			= 'py3-none'
+
+		return payload_files, abi_tag, platform_tag
 
 	#---------------------------------------------------------------------------
 	def write_file(handle, f):
@@ -285,17 +352,18 @@ def wheel(config_file):
 	data_path		= '{}-{}.data'.format(distribution, version)
 	dist_info		= '{}-{}.dist-info'.format(distribution, version)
 	python_files	= find_python()
-	payload_files	= find_payload()
 	script_files	= find_scripts(data_path)
+	payload_files, abi_tag, platform_tag = find_payload(abi_tag, platform_tag)
+
+	whl_file = f'{distribution}-{version}-{abi_tag}-{platform_tag}.whl'
 
 	if os.path.exists(whl_file):
 		os.remove(whl_file)
-		
+
 	with zipfile.ZipFile(whl_file, mode='w', compression=zipfile.ZIP_DEFLATED) as handle:
 		for f in python_files:	write_file(handle, f)
 		for f in payload_files:	write_file(handle, f)
 		for f in script_files:	write_file(handle, f)
-
 
 		metadata_file	= os.path.join(dist_info, 'METADATA')
 		toplist_file	= os.path.join(dist_info, 'top_list.txt')
@@ -303,8 +371,8 @@ def wheel(config_file):
 		record_file		= os.path.join(dist_info, 'RECORD')
 
 		metadata	= generate_meta_data()
-		toplist		= generate_top_list()
 		wheel_		= generate_wheel()
+		toplist		= generate_top_list()
 		record		= generate_record(
 			[python_files, payload_files, script_files],
 			[

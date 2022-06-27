@@ -10,6 +10,17 @@ the Python Wheel build process!
 <table>
 <tr><th>Version</th><th>Comment</th></tr>
 
+<tr><td>v0.2.0</td><td>
+<ul>
+<li><b>**BREAKING CHANGE**</b> Changed optional syntax to allow conditionals such as <code>/some/path/pattern*.* ? >= 5 && <7</code></li>
+<li>Illyrian now automatically determines your Manylinux and CPython compatibility if you don't explicitly set it via <code>abi-tag</code> and <code>platform-tag</code>.</li>
+<li>Added <code>EXACT</code> keyword to <code>ILLYRIAN_FIND_PYTHON</code></li>
+<li>Fixed generation of <code>RECORD</code> file when package contains script files</li>
+<li>Generated FindScripts now recheck if the version number gets increased</li>
+<li>Added <code>ILLYRIAN_PYTHON_VERSION</code> env var to override default version for <code>ILLYRIAN_FIND_PYTHON</code>.</li>
+</ul>
+</td></tr>
+
 <tr><td>v0.1.4</td><td>
 <ul>
 <li>Removed <code>-Wl,--no-as-needed</code> from <code>ILLYRIAN_TARGET_FLAGS</code>.</li>
@@ -18,7 +29,7 @@ the Python Wheel build process!
 </td></tr>
 
 <tr><td>v0.1.3</td><td>
-Split "tag" into "abi-tag" and "platform-tag" as described in [PEP491](https://peps.python.org/pep-0491/#file-name-convention).
+Split "tag" into "abi-tag" and "platform-tag" as described in <a href="https://peps.python.org/pep-0491/#file-name-convention" target="_BLANK">PEP491</a>.
 </td></tr>
 
 <tr><td>v0.1.2</td><td>
@@ -198,8 +209,8 @@ The Illyrian config file is a plain JSON file that supports the following fields
 | requires-python | ```>= 3.X``` | required |
 | summary | str | required |
 | supported-platform | str/list | |
-| abi-tag | str | default: none |
-| platform-tag | str | default: any |
+| abi-tag | str | default: auto |
+| platform-tag | str | default: auto |
 | version | ```[0-9\.]+``` | required |
 
 Additionally there the ```packages``` key expects a list of paths to python
@@ -211,8 +222,9 @@ The ```payload``` key expects a list of paths. Here you can use GLOB syntax
 ```path/to/**```.
 
 ```packages``` and ```payload``` fail if no files are found in the specified
-path. If the first letter of the path is a ```?``` for ```packages``` or ```payload```, it gets marked
-as optional and will not fail.
+path. This can be overwritten by adding an ```?``` with a condition (```>=, <=,
+>, <, ==, !=```) and the number of expected files, e.g., ```/my/path/* ? ==
+5```. You can chain multiple and-conditions using ```&&```.
 
 Here an example:
 ```json
