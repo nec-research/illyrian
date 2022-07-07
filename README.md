@@ -10,6 +10,12 @@ the Python Wheel build process!
 <table>
 <tr><th>Version</th><th>Comment</th></tr>
 
+<tr><td>v0.2.1</td><td>
+<ul>
+<li>Added <code>ILLYRIAN_NO_PYTHON</code> option to CMake for non-python builds that use Illyrian</li>
+</ul>
+</td></tr>
+
 <tr><td>v0.2.0</td><td>
 <ul>
 <li><b>**BREAKING CHANGE**</b> Changed optional syntax to allow conditionals such as <code>/some/path/pattern*.* ? >= 5 && <7</code></li>
