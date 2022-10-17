@@ -10,6 +10,14 @@ the Python Wheel build process!
 <table>
 <tr><th>Version</th><th>Comment</th></tr>
 
+<tr><td>v0.2.2</td><td>
+<ul>
+<li>Added option to fetch name + email from <code>git</code> using '__GIT__' value</li>
+<li>Fixed bug where Illyrian deleted all WHL in the target folder</li>
+<li>Added Python 3.6 compatibility</li>
+</ul>
+</td></tr>
+
 <tr><td>v0.2.1</td><td>
 <ul>
 <li>Added <code>ILLYRIAN_NO_PYTHON</code> option to CMake for non-python builds that use Illyrian</li>

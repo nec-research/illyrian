@@ -1,6 +1,6 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.11)
 
-PROJECT(Illyrian VERSION 0.2.1)
+PROJECT(Illyrian VERSION 0.2.2)
 
 SET(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/dist" CACHE STRING "" FORCE)
 
@@ -25,6 +25,7 @@ DESTINATION ${Illyrian_INSTALL_PATH}/manylinux)
 INSTALL(FILES
 	${CMAKE_CURRENT_LIST_DIR}/illyrian/cpython/__init__.py
 	${CMAKE_CURRENT_LIST_DIR}/illyrian/cpython/code.py
+	${CMAKE_CURRENT_LIST_DIR}/illyrian/cpython/cpython36.py
 	${CMAKE_CURRENT_LIST_DIR}/illyrian/cpython/cpython37.py
 	${CMAKE_CURRENT_LIST_DIR}/illyrian/cpython/cpython38.py
 	${CMAKE_CURRENT_LIST_DIR}/illyrian/cpython/cpython39.py
@@ -35,6 +36,10 @@ INSTALL(FILES ${CMAKE_CURRENT_LIST_DIR}/scripts/illyrian DESTINATION scripts)
 
 INCLUDE(illyrian/cmake/illyrian.cmake)
 ILLYRIAN_FIND_PYTHON()
+
+IF(${Python3_VERSION_MINOR} LESS 7)
+	ILLYRIAN_INSTALL_PYTHON_PACKAGE("importlib_resources")
+ENDIF()
 
 ADD_PYTHON_WHEEL(dist ${CMAKE_CURRENT_LIST_DIR}/illyrian.json)
 

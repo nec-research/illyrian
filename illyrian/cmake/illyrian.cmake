@@ -277,9 +277,10 @@ FUNCTION(ADD_PYTHON_WHEEL TARGET_NAME JSON)
 
 	# https://www.python.org/dev/peps/pep-0427/#id13 # re.sub("[^\w\d.]+", "_", distribution, re.UNICODE)
 	STRING(TOLOWER ${NAME} NAME)
+	STRING(REGEX REPLACE "[^a-z0-9\\.]+" "_" NAME ${NAME})
 
 	ADD_CUSTOM_TARGET(${TARGET_NAME}-pre
-		COMMAND ${CMAKE_COMMAND} -E rm -f *.whl
+		COMMAND ${CMAKE_COMMAND} -E rm -f "${NAME}-*.whl"
 		DEPENDS illyrian_install
 		WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX})
 	

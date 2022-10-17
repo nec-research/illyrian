@@ -1,10 +1,13 @@
 __all__ = ['check']
 
 import json
-import re
 import platform
-import importlib.resources
 from collections import OrderedDict
+import sys
+if sys.version_info[1] >= 7:
+	import importlib.resources as importlib_resources
+else:
+	import importlib_resources
 
 arch        = platform.machine()
 manylinux   = None
@@ -16,7 +19,7 @@ def check(obj_versions):
 		return 'any'
 
 	if manylinux is None:
-		manylinux_json	= json.load(importlib.resources.open_text('auditwheel.policy', 'manylinux-policy.json'))
+		manylinux_json	= json.load(importlib_resources.open_text('auditwheel.policy', 'manylinux-policy.json'))
 		manylinux_json	= sorted(manylinux_json, key=lambda x: x['priority'], reverse=True)
 		manylinux		= OrderedDict()
 		for m in manylinux_json:

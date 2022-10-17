@@ -1,5 +1,6 @@
 __all__ = ['check']
 
+from illyrian.cpython.cpython36 import CPYTHON36
 from illyrian.cpython.cpython37 import CPYTHON37
 from illyrian.cpython.cpython38 import CPYTHON38
 from illyrian.cpython.cpython39 import CPYTHON39
@@ -7,7 +8,7 @@ from illyrian.cpython.cpython310 import CPYTHON310
 import re
 
 NONE		= ('py3-none', set())
-available	= (NONE, CPYTHON37, CPYTHON38, CPYTHON39, CPYTHON310)
+available	= (NONE, CPYTHON36, CPYTHON37, CPYTHON38, CPYTHON39, CPYTHON310)
 
 def check(required_symbols):
 	supported	= []

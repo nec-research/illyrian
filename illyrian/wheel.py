@@ -28,14 +28,14 @@ def wheel(config_file):
 		try:
 			j = json.load(open(file, 'r'))
 		except Exception as e:
-			raise Exception('Cannot open {}: {}'.format(config_file, e))
+			raise Exception(f'Cannot open {config_file}: {e}')
 	
 		if not isinstance(j, dict):
-			raise Exception('Root element needs to be a dict, but is: {}'.format(type(j)))
+			raise Exception(f'Root element needs to be a dict, but is: {type(j)}')
 		
 		for k in j.keys():
 			if k not in supported:
-				raise Exception('Unsupported key \'{}\'. Only {} are supported.'.format(k, sorted(supported)))
+				raise Exception(f'Unsupported key \'{k}\'. Only {sorted(supported)} are supported.')
 		
 		return j
 
@@ -74,11 +74,11 @@ def wheel(config_file):
 		global config
 
 		if name not in config:
-			raise Exception('Missing field "{}" in {}'.format(name, config_file))
+			raise Exception(f'Missing field "{name}" in {config_file}')
 		
 		value = config.pop(name).strip()
 		if len(value) == 0:
-			raise Exception('Empty field "{}" in {}'.format(name, config_file))
+			raise Exception(f'Empty field "{name}" in {config_file}')
 		
 		return value
 
@@ -95,24 +95,24 @@ def wheel(config_file):
 		def required(key, fmt, can_be_list=False, regex=None):
 			def format(v):
 				if not isinstance(v, str):
-					raise Exception('Expected str for {} but found {}'.format(fmt, type(v)))
+					raise Exception(f'Expected str for {fmt} but found {type(v)}')
 
 				v = v.strip()
 
 				if len(v) == 0:
-					raise Exception('Empty str found for {}'.format(fmt))
+					raise Exception(f'Empty str found for {fmt}')
 
 				if regex:
 					if re.search(regex, value) is None:
-						raise Exception('Illegal value "{}" in for {}'.format(value, fmt))
+						raise Exception(f'Illegal value "{value}" in for {fmt}')
 				
-				return '{}: {}\n'.format(fmt, v)
+				return f'{fmt}: {v}\n'
 
 			value = config[key]
 
 			if isinstance(value, (list, tuple)):
 				if not can_be_list:
-					raise Exception('{} can\'t be a list'.format(key))
+					raise Exception(f'{key} can\'t be a list')
 				out = ''
 				for v in value:
 					out += format(v)
@@ -125,9 +125,20 @@ def wheel(config_file):
 				return required(key, fmt, can_be_list)
 			return ''
 
+		def git(key, git):
+			value = config.get(key, None)
+			if value == '__GIT__':
+				p = subprocess.run(['git', 'config', git], stdout=subprocess.PIPE)
+				if p.returncode != 0:
+					raise Exception(f'Unable to fetch {git} from git')
+				config[key] = p.stdout.decode('utf-8')
+
+		git('author',		'user.name')
+		git('author-email',	'user.email')
+
 		meta  = 'Metadata-Version: 2.1\n'
-		meta += 'Name: {}\n'.format(name)
-		meta += 'Version: {}\n'.format(version)
+		meta += f'Name: {name}\n'
+		meta += f'Version: {version}\n'
 		meta += required('requires-python',		'Requires-Python', regex='^[>=<\s]+[\.0-9]+[>=<\s,\.0-9]*$')
 		meta += required('summary',				'Summary')
 		meta += optional('author',				'Author')
@@ -166,9 +177,9 @@ def wheel(config_file):
 	#---------------------------------------------------------------------------
 	def generate_wheel():
 		wheel_  = 'Wheel-Version: 1.0\n'
-		wheel_ += 'Generator: illyrian ({})\n'.format(illyrian.__version__)
+		wheel_ += f'Generator: illyrian ({illyrian.__version__})\n'
 		wheel_ += 'Root-Is-Purelib: true\n'
-		wheel_ += 'Tag: {}-{}\n'.format(abi_tag, platform_tag)
+		wheel_ += f'Tag: {abi_tag}-{platform_tag}\n'
 		print("## WHEEL")
 		print(wheel_)
 		print()
@@ -178,7 +189,7 @@ def wheel(config_file):
 	def hash(content):
 		m = hashlib.sha256()
 		m.update(content)
-		return 'sha256={}'.format(base64.b64encode(m.digest()).decode('UTF-8'))
+		return f'sha256={base64.b64encode(m.digest()).decode("UTF-8")}'
 
 	#---------------------------------------------------------------------------
 	def generate_record(file_lists, string_list):
@@ -188,7 +199,7 @@ def wheel(config_file):
 				if isinstance(file, tuple):	src, dst = file[:2]
 				else:						src, dst = file, file
 				content = open(src, 'rb').read()
-				record += '{}, {}, {}\n'.format(dst, hash(content), len(content))
+				record += f'{dst}, {hash(content)}, {len(content)}\n'
 
 		for file, string in string_list:
 			if string is None:
@@ -196,7 +207,7 @@ def wheel(config_file):
 			else:
 				content = string.encode('UTF-8')
 				h, l = hash(content), len(content)
-			record += '{}, {}, {}\n'.format(file, h, l)
+			record += f'{file}, {h}, {l}\n'
 
 		return record
 
@@ -338,7 +349,7 @@ def wheel(config_file):
 		else:						src, dst, attr = f, f, None
 
 		if os.path.islink(src):
-			raise Exception('{} is a symlink. Symlinks are not supported by PIP!'.format(f))
+			raise Exception(f'{f} is a symlink. Symlinks are not supported by PIP!')
 			#handle.writestr(f, os.readlink(f))
 			#info = handle.getinfo(f)
 			#info.external_attr |= (0xA1FF) << 16
@@ -349,8 +360,8 @@ def wheel(config_file):
 				info.external_attr |= attr << 16
 
 	#---------------------------------------------------------------------------
-	data_path		= '{}-{}.data'.format(distribution, version)
-	dist_info		= '{}-{}.dist-info'.format(distribution, version)
+	data_path		= f'{distribution}-{version}.data'
+	dist_info		= f'{distribution}-{version}.dist-info'
 	python_files	= find_python()
 	script_files	= find_scripts(data_path)
 	payload_files, abi_tag, platform_tag = find_payload(abi_tag, platform_tag)
@@ -388,4 +399,4 @@ def wheel(config_file):
 		handle.writestr(wheel_file,		wheel_)
 		handle.writestr(record_file,	record)
 
-	print('Generated: {}'.format(whl_file))
+	print(f'Generated: {whl_file}')
