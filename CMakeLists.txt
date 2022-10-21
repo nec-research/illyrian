@@ -37,7 +37,7 @@ INSTALL(FILES ${CMAKE_CURRENT_LIST_DIR}/scripts/illyrian DESTINATION scripts)
 INCLUDE(illyrian/cmake/illyrian.cmake)
 ILLYRIAN_FIND_PYTHON()
 
-IF(${Python3_VERSION_MINOR} LESS 7)
+IF("${Python3_VERSION_MINOR}" LESS 7)
 	ILLYRIAN_INSTALL_PYTHON_PACKAGE("importlib_resources")
 ENDIF()
 
