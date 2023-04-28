@@ -6,9 +6,27 @@ CMake produces multiple Python libraries, you would need to split your CMake
 project. With Illyrian you don't need to do it! With Illyrian CMake encapsulates
 the Python Wheel build process!
 
+[![Github](https://img.shields.io/github/v/tag/nec-research/illyrian?display_name=tag&sort=semver)](https://github.com/sx-aurora/veda)
+[![PyPI](https://img.shields.io/pypi/v/illyrian)](https://pypi.org/project/illyrian)
+[![License](https://img.shields.io/pypi/l/illyrian)](https://pypi.org/project/illyrian)
+![Python Versions](https://img.shields.io/pypi/pyversions/illyrian)
+![Linux](https://svgshare.com/i/Zhy.svg)
+![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)
+![Maintenance](https://img.shields.io/pypi/dm/illyrian)
+
 ## Release Notes
 <table>
 <tr><th>Version</th><th>Comment</th></tr>
+
+<tr><td>v0.3.0</td><td>
+<ul>
+<li>Improved error handling within CMake extension</li>
+<li>Added version number format checking</li>
+<li>Increased CMake min version to 3.19</li>
+<li>Added support to run multiple files at once: <code>illyrian A.json B.json C.json</code></li>
+<li>Fixed hashing for dist-info/RECORD</code></li>
+</ul>
+</td></tr>
 
 <tr><td>v0.2.2</td><td>
 <ul>
@@ -32,6 +50,8 @@ the Python Wheel build process!
 <li>Fixed generation of <code>RECORD</code> file when package contains script files</li>
 <li>Generated FindScripts now recheck if the version number gets increased</li>
 <li>Added <code>ILLYRIAN_PYTHON_VERSION</code> env var to override default version for <code>ILLYRIAN_FIND_PYTHON</code>.</li>
+<li>Added <code>license-file</code> option.</li>
+<li>Added <code>links</code> option, that allows to add links to executables.</li>
 </ul>
 </td></tr>
 
@@ -203,6 +223,7 @@ The Illyrian config file is a plain JSON file that supports the following fields
 | Fields | Type | Comment |
 | --- | --- | --- |
 | ```__include__``` | str/list | Allows to include other config JSON files. If a key exists in both, the value will be casted to a list and get appended. |
+| abi-tag | str | default: auto |
 | author | str | |
 | author-email | str | |
 | classifier | str/list | |
@@ -210,21 +231,23 @@ The Illyrian config file is a plain JSON file that supports the following fields
 | homepage | str | |
 | keywords | str | |
 | license | str | |
+| license-file | str | Will be stored in package-name.dist/LICENSE |
+| links | list | Creates global links to executables. |
 | maintainer | str  | |
 | maintainer-email | str | | 
 | name | str | required |
 | obsoletes-dist | str/list | |
 | platform | str/list | |
+| platform-tag | str | default: auto |
 | project-url | str/list | |
 | provides-dist | str/list | |
+| provides-extra | str/list | |
 | readme | ```path/to/readme.md``` | Expects the path to a Markdown file. The file DOES NOT get stored within the wheel. Use ```payload``` for that. |
 | requires-dist | str/list | |
 | requires-external | str/list | |
 | requires-python | ```>= 3.X``` | required |
 | summary | str | required |
 | supported-platform | str/list | |
-| abi-tag | str | default: auto |
-| platform-tag | str | default: auto |
 | version | ```[0-9\.]+``` | required |
 
 Additionally there the ```packages``` key expects a list of paths to python
@@ -263,3 +286,9 @@ Here an example:
 	]
 }
 ```
+
+## Illyrian Debug Features
+If you want to investigate the meta data of a WHL file, just run `illyrian
+file.whl`. Illyrian will extract all available metadata (.dist-info/METADATA,
+WHEEL and RECORD) and evaluate also the correctness of the entries within the
+RECORD file.
