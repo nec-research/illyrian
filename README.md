@@ -10,13 +10,20 @@ the Python Wheel build process!
 [![PyPI](https://img.shields.io/pypi/v/illyrian)](https://pypi.org/project/illyrian)
 [![License](https://img.shields.io/pypi/l/illyrian)](https://pypi.org/project/illyrian)
 ![Python Versions](https://img.shields.io/pypi/pyversions/illyrian)
-![Linux](https://svgshare.com/i/Zhy.svg)
 ![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)
 ![Maintenance](https://img.shields.io/pypi/dm/illyrian)
 
 ## Release Notes
 <table>
 <tr><th>Version</th><th>Comment</th></tr>
+
+
+<tr><td>v0.3.1</td><td>
+<ul>
+<li>CMake ignores <code>Python3_USERLIB</code> when USER_SITE is disabled.</li>
+<li>Fixed `TypeError: '<' not supported between instances of 'NoneType' and 'NoneType'`.
+</ul>
+</td></tr>
 
 <tr><td>v0.3.0</td><td>
 <ul>

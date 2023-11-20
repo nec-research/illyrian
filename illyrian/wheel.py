@@ -35,7 +35,12 @@ class File:
 		if self.src > o.src:	return False
 		if self.dst < o.dst:	return True
 		if self.dst > o.dst:	return False
-		return self.chmod < o.chmod
+		if self.chmod is None:
+			if o.chmod is None:	return False
+			else:				return True
+		else:
+			if o.chmod is None:	return False
+			else:				return self.chmod < o.chmod
 
 	def write(self, handle):
 		if self.content is None:
@@ -379,7 +384,10 @@ def wheel(config_file):
 					raise Exception(f'{msg(cnt)} failed for {payload}')
 				
 				for f in files:
-					payload_files.append(File(f))
+					x = File(f)
+					if x in payload_files:
+						raise Exception(f'File {f} cannot be added twice by multiple payload rules!')
+					payload_files.append(x)
 
 			payload_files.sort()
 
