@@ -18,6 +18,13 @@ the Python Wheel build process!
 <tr><th>Version</th><th>Comment</th></tr>
 
 
+<tr><td>v0.3.2</td><td>
+<ul>
+<li>Added cpython3.11 symbols.</li>
+<li>Bugfix <code>Python3_USERLIB</code> detection.</li>
+</ul>
+</td></tr>
+
 <tr><td>v0.3.1</td><td>
 <ul>
 <li>CMake ignores <code>Python3_USERLIB</code> when USER_SITE is disabled.</li>

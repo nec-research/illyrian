@@ -1,6 +1,6 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.19)
 
-PROJECT(Illyrian VERSION 0.3.1)
+PROJECT(Illyrian VERSION 0.3.2)
 
 SET(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/dist" CACHE STRING "" FORCE)
 
@@ -38,6 +38,7 @@ INSTALL(FILES
 	${CMAKE_CURRENT_LIST_DIR}/illyrian/cpython/cpython38.py
 	${CMAKE_CURRENT_LIST_DIR}/illyrian/cpython/cpython39.py
 	${CMAKE_CURRENT_LIST_DIR}/illyrian/cpython/cpython310.py
+	${CMAKE_CURRENT_LIST_DIR}/illyrian/cpython/cpython311.py
 DESTINATION ${Illyrian_INSTALL_PATH}/cpython)
 INSTALL(FILES ${CMAKE_CURRENT_LIST_DIR}/illyrian/cmake/illyrian.cmake DESTINATION ${Illyrian_INSTALL_PATH}/cmake)
 INSTALL(FILES ${CMAKE_CURRENT_LIST_DIR}/scripts/illyrian DESTINATION scripts)

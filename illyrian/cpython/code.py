@@ -5,13 +5,14 @@ from illyrian.cpython.cpython37 import CPYTHON37
 from illyrian.cpython.cpython38 import CPYTHON38
 from illyrian.cpython.cpython39 import CPYTHON39
 from illyrian.cpython.cpython310 import CPYTHON310
+from illyrian.cpython.cpython311 import CPYTHON311
 import re
 
 NONE		= ('py3-none', set())
-available	= (NONE, CPYTHON36, CPYTHON37, CPYTHON38, CPYTHON39, CPYTHON310)
+available	= (NONE, CPYTHON36, CPYTHON37, CPYTHON38, CPYTHON39, CPYTHON310, CPYTHON311)
 
 def check(required_symbols):
-	supported	= []
+	supported = []
 
 	if len(required_symbols) == 0:
 		return NONE[0]
