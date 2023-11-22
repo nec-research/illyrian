@@ -18,6 +18,12 @@ the Python Wheel build process!
 <tr><th>Version</th><th>Comment</th></tr>
 
 
+<tr><td>v0.3.3</td><td>
+<ul>
+<li>Increase CMake backward compatibility for <code>EXECUTE_PROCESS(...)</code></li>
+</ul>
+</td></tr>
+
 <tr><td>v0.3.2</td><td>
 <ul>
 <li>Added cpython3.11 symbols.</li>
