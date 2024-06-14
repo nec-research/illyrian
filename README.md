@@ -17,6 +17,11 @@ the Python Wheel build process!
 <table>
 <tr><th>Version</th><th>Comment</th></tr>
 
+<tr><td>v0.3.4</td><td>
+<ul>
+<li>Yet again bugfixes for <code>Python3_USERLIB</code> detection.</li>
+</ul>
+</td></tr>
 
 <tr><td>v0.3.3</td><td>
 <ul>
