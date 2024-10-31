@@ -23,9 +23,9 @@
 	"payload": [
 		"illyrian/cmake/*.cmake"
 	],
-	"scripts": [
-		"scripts/illyrian"
-	],
+	"entry-points": {
+		"console_scripts": "illyrian = illyrian.run:run"
+	},
 	"requires-dist": [
 		"auditwheel",
 		"importlib-resources; python_version < \"3.7\"",

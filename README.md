@@ -17,6 +17,12 @@ the Python Wheel build process!
 <table>
 <tr><th>Version</th><th>Comment</th></tr>
 
+<tr><td>v0.3.5</td><td>
+<ul>
+<li>Added option for <code>entry-points</code></li>
+</ul>
+</td></tr>
+
 <tr><td>v0.3.4</td><td>
 <ul>
 <li>Yet again bugfixes for <code>Python3_USERLIB</code> detection.</li>
@@ -274,6 +280,7 @@ The Illyrian config file is a plain JSON file that supports the following fields
 | summary | str | required |
 | supported-platform | str/list | |
 | version | ```[0-9\.]+``` | required |
+| entry-points | Dict[str, Union[List[str], str]] | |
 
 Additionally there the ```packages``` key expects a list of paths to python
 packages, i.e. ```"packages": ["bla", "bla/sub"]```. ALL subpackages need to be
@@ -284,9 +291,9 @@ The ```payload``` key expects a list of paths. Here you can use GLOB syntax
 ```path/to/**```.
 
 ```packages``` and ```payload``` fail if no files are found in the specified
-path. This can be overwritten by adding an ```?``` with a condition (```>=, <=,
->, <, ==, !=```) and the number of expected files, e.g., ```/my/path/* ? ==
-5```. You can chain multiple and-conditions using ```&&```.
+path. This can be overwritten by adding an ```?``` with a condition (```>=, <=, >, <, ==, !=```)
+and the number of expected files, e.g., ```/my/path/* ? == 5```. You can chain
+multiple and-conditions using ```&&```.
 
 Here an example:
 ```json
@@ -306,9 +313,9 @@ Here an example:
 		"illyrian/LICENSE",
 		"illyrian/cmake/*.cmake"
 	],
-	"scripts": [
-		"scripts/illyrian"
-	]
+	"entry-points": {
+		"console_scripts": "illyrian = illyrian.run:run"
+	}
 }
 ```
 

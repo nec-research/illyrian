@@ -73,7 +73,7 @@ def wheel(config_file):
 		'requires-dist', 'requires-external', 'supported-platform', 'requires-python',
 		'summary', 'readme', 'name', 'version', 'abi-tag', 'platform-tag',
 		'__include__', 'packages', 'scripts', 'payload', 'python-tag', 'provides-extra',
-		'links'}
+		'links', 'entry-points'}
 
 	def read_json(file):
 		j = None
@@ -237,6 +237,28 @@ def wheel(config_file):
 		return File(os.path.join(dist_info, 'top_list.txt'), content=top_list)
 
 	#---------------------------------------------------------------------------
+	def generate_entry_points(dist_info):
+		if 'entry-points' in config:
+			ep = config['entry-points']
+			assert isinstance(ep, dict)
+
+			content	= ''
+
+			for k, v in ep.items():
+				content += f'[{k}]\n'
+				if isinstance(v, str):
+					v = [v]
+				
+				for item in v:
+					content += f'{item}\n'
+
+			print(f'{L_EMPH}## EntryPoints{L_RESET}')
+			print(content)
+			print()
+			return File(os.path.join(dist_info, 'entry_points.txt'), content=content)
+		return None
+
+	#---------------------------------------------------------------------------
 	def generate_wheel(dist_info):
 		wheel_  = 'Wheel-Version: 1.0\n'
 		wheel_ += f'Generator: illyrian ({illyrian.__version__})\n'
@@ -244,7 +266,6 @@ def wheel(config_file):
 		wheel_ += f'Tag: {abi_tag}-{platform_tag}\n'
 		print(f'{L_EMPH}## WHEEL{L_RESET}')
 		print(wheel_)
-		print()
 		return File(os.path.join(dist_info, 'WHEEL'), content=wheel_)
 
 	#---------------------------------------------------------------------------
@@ -259,7 +280,8 @@ def wheel(config_file):
 			record += f'{file.dst}, {h}, {l}\n'
 
 		for file in files:
-			add(file, file.read())
+			if file is not None:
+				add(file, file.read())
 		add(self, None)
 
 		self.content = record
@@ -457,21 +479,24 @@ raise Exception('Unable to find {src}')
 		for f in header_files:	f.write(handle)
 		for f in link_files:	f.write(handle)
 
-		metadata	= generate_meta_data(dist_info)
-		wheel_		= generate_wheel	(dist_info)
-		toplist		= generate_top_list	(dist_info)
+		metadata	= generate_meta_data	(dist_info)
+		wheel_		= generate_wheel		(dist_info)
+		toplist		= generate_top_list		(dist_info)
+		entry_points= generate_entry_points	(dist_info)
 		record		= generate_record(
 			python_files + 
 			payload_files + 
 			script_files + 
 			header_files + 
 			link_files +
-			[metadata, toplist, wheel_]
+			[metadata, toplist, wheel_, entry_points]
 		)
 
 		metadata.write(handle)
 		wheel_.write(handle)
 		toplist.write(handle)
+		if entry_points:
+			entry_points.write(handle)
 		record.write(handle)
 
 	print(f'Generated: {whl_file}')
