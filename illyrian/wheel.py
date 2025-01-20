@@ -277,7 +277,7 @@ def wheel(config_file):
 			nonlocal record
 			if content is None:	h, l = '', ''
 			else:				h, l = util.hash(content), len(content)
-			record += f'{file.dst}, {h}, {l}\n'
+			record += f'{file.dst},{h},{l}\n' # don't do white spaces here #1721
 
 		for file in files:
 			if file is not None:

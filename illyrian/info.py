@@ -62,7 +62,7 @@ def info(whl_file, graph, nodes):
 				else:
 					sha			= color(check_hash(sha, content), sha)
 					size		= color(check_size(size, content), size)
-				print(f'{filename}, {sha}, {size}')
+				print(f'{filename},{sha},{size}') # don't do white spaces here #1721
 
 			for x in all_files:
 				print(f'{L_RED}{x}{L_RESET}')
