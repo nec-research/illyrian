@@ -17,6 +17,13 @@ the Python Wheel build process!
 <table>
 <tr><th>Version</th><th>Comment</th></tr>
 
+<tr><td>v0.3.7</td><td>
+<ul>
+<li>Fixed, that CMake properly sets <code>RPATH</code> instead of <code>RUNPATH</code> on all platforms.</li>
+<li>Fixed CMake detection of virtual env Python.</li>
+</ul>
+</td></tr>
+
 <tr><td>v0.3.6</td><td>
 <ul>
 <li>Fixed generation of <code>RECORD</code> to prevent problems with newer versions of <code>importlib-metadata</code>.</li>
