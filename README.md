@@ -17,6 +17,12 @@ the Python Wheel build process!
 <table>
 <tr><th>Version</th><th>Comment</th></tr>
 
+<tr><td>v0.3.8</td><td>
+<ul>
+<li>Fixed, wrong merging of duplicate config fields and added more checks.</li>
+</ul>
+</td></tr>
+
 <tr><td>v0.3.7</td><td>
 <ul>
 <li>Fixed, that CMake properly sets <code>RPATH</code> instead of <code>RUNPATH</code> on all platforms.</li>

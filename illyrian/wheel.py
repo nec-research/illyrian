@@ -104,6 +104,10 @@ def wheel(config_file):
 				if isinstance(v, list):	val = val + v
 				else:					val.append(v)
 
+				val = list(set(val))
+				if len(val) == 1:
+					val = val[0]
+
 				A[k] = val
 			else:
 				A[k] = v
@@ -146,6 +150,11 @@ def wheel(config_file):
 	version			= check_version(check('version'))
 	abi_tag			= config.pop('abi-tag', 'auto')
 	platform_tag	= config.pop('platform-tag', 'auto')
+
+	if not isinstance(name, str):			raise Exception(f'name needs to be a str but found {name}')
+	if not isinstance(version, str):		raise Exception(f'version needs to be a str but found {version}')
+	if not isinstance(abi_tag, str):		raise Exception(f'abi_tag needs to be a str but found {abi_tag}')
+	if not isinstance(platform_tag, str):	raise Exception(f'platform_tag needs to be a str but found {platform_tag}')
 
 	# https://www.python.org/dev/peps/pep-0427/#id13
 	distribution	= re.sub("[^\w\d.]+", "_", name, re.UNICODE)
