@@ -17,6 +17,12 @@ the Python Wheel build process!
 <table>
 <tr><th>Version</th><th>Comment</th></tr>
 
+<tr><td>v0.3.9</td><td>
+<ul>
+<li>Bugfix for detection of valid manylinux distros on ARM64.</li>
+</ul>
+</td></tr>
+
 <tr><td>v0.3.8</td><td>
 <ul>
 <li>Fixed, wrong merging of duplicate config fields and added more checks.</li>

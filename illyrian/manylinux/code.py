@@ -24,6 +24,8 @@ def check(obj_versions):
 		manylinux		= OrderedDict()
 		for m in manylinux_json:
 			symbol_versions = m.get('symbol_versions').get(arch, None)
+			if symbol_versions is None and m['name'] != 'linux':
+				continue # do not insert versions (other than the fallback), if they do not have an entry for the architecture
 			manylinux[m['name']] = {} if symbol_versions is None else dict((k, set(v)) for k, v in symbol_versions.items())
 
 	def check_item(symbol_versions):
